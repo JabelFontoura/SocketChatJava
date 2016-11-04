@@ -1,33 +1,30 @@
 package br.feevale.servidor;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter; 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter; 
+import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.net.ServerSocket; 
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.JOptionPane;
 
 public class Servidor extends Thread {
 	private static ArrayList<BufferedWriter>clientes;
 	private static ServerSocket server;
-	private String nome;
+	private  String name;
 	private Socket con;
 	private InputStream in;
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 
-	/** * Método construtor 
-	* @param com do tipo Socket
-	*/ 
 	public Servidor(Socket con){
 		this.con = con; 
 		try { 
@@ -38,8 +35,7 @@ public class Servidor extends Thread {
 			e.printStackTrace(); 
 		}
 	}
-	
-	/** * Método run */ 
+
 	public void run(){
 		try{
 			String msg;
@@ -47,7 +43,8 @@ public class Servidor extends Thread {
 			Writer ouw = new OutputStreamWriter(ou);
 			BufferedWriter bfw = new BufferedWriter(ouw);
 			clientes.add(bfw);
-			nome = msg = bfr.readLine();
+			name = msg = bfr.readLine();
+
 			while(!"Sair".equalsIgnoreCase(msg) && msg != null) {
 				msg = bfr.readLine();
 				sendToAll(bfw, msg);
@@ -57,37 +54,31 @@ public class Servidor extends Thread {
 			e.printStackTrace(); 
 		}
 	}
-	
-	/***
-	 * Método usado para enviar mensagem para todos os clients
-	 * @param bwSaida do tipo BufferedWriter
-	 * @param msg do tipo String
-	 * @throws IOException
-	 */
+
 	public void sendToAll(BufferedWriter bwSaida, String msg) throws  IOException 
 	{
-	  BufferedWriter bwS;
-	   
-	  for(BufferedWriter bw : clientes){
-	   bwS = (BufferedWriter)bw;
-	   if(!(bwSaida == bwS)){
-	     bw.write(nome + ": " + msg+"\r\n");
-	     bw.flush(); 
-	   }
-	  }          
+		BufferedWriter bwS;
+
+		for(BufferedWriter bw : clientes){
+
+			bwS = (BufferedWriter)bw;
+			if(bwSaida != bwS){
+				bw.write(name + ": " + msg+"\r\n");
+				bw.flush(); 
+			}
+		}          
 	}
-	
-	/*** * Método main * @param args */
+
 	public static void main(String []args) {
 		try{
-			//Cria os objetos necessário para instânciar o servidor 
+
 			JLabel lblMessage = new JLabel("Porta do Servidor:");
-			JTextField txtPorta = new JTextField("12345");
-			Object[] texts = {lblMessage, txtPorta };
+			JTextField txtPort = new JTextField("8888");
+			Object[] texts = {lblMessage, txtPort };
 			JOptionPane.showMessageDialog(null, texts);
-			server = new ServerSocket(Integer.parseInt(txtPorta.getText()));
+			server = new ServerSocket(Integer.parseInt(txtPort.getText()));
 			clientes = new ArrayList<BufferedWriter>();
-			JOptionPane.showMessageDialog(null,"Servidor ativo na porta: "+ txtPorta.getText());
+			JOptionPane.showMessageDialog(null,"Servidor ativo na porta: "+ txtPort.getText());
 			while(true){
 				System.out.println("Aguardando conexão...");
 				Socket con = server.accept();
@@ -97,57 +88,6 @@ public class Servidor extends Thread {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-	}// Fim do método main
-} //Fim da classe
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} 
