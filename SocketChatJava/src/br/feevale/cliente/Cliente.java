@@ -1,7 +1,6 @@
 package br.feevale.cliente;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -15,129 +14,171 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
-import javax.swing.*;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class Cliente extends JFrame implements ActionListener, KeyListener {
 	private static final long serialVersionUID = 1L;
-	private JTextArea txtHistorico;
+	private static JTextArea txtHistory;
 	private JTextField txtMsg;
 	private JButton btnSend;
-	private JButton btnSair;
+	private JButton btnExit;
 	private JLabel lblUsuarios;
 	private JPanel pnlContent;
-	private Socket socket;
+	private static Socket socket;
 	private OutputStream ou;
 	private Writer ouw; 
 	private BufferedWriter bfw;
 	private JTextField txtIP;
-	private JTextField txtPorta;
-	private JTextField txtNome;
+	private JTextField txtPort;
+	private JTextField txtName;
 	private JScrollPane scroll;
+	private JLabel lblPort;
+	private JLabel lblIP;
+	private JLabel lblNome;
+	private JButton btnConnect;
+	private static boolean connected = false;
 
-	public Cliente() throws IOException{                  
-		JLabel lblMessage = new JLabel("Verificar!");
-		txtIP = new JTextField("127.0.0.1");
-		txtPorta = new JTextField("");
-		txtNome = new JTextField("Cliente");                
-		Object[] texts = {lblMessage, txtIP, txtPorta, txtNome };  
-		JOptionPane.showMessageDialog(null, texts);              
+	public Cliente() throws IOException{                               
+
 		pnlContent = new JPanel();
-		txtHistorico = new JTextArea(20,20);
-		txtHistorico.setEditable(false);
-		txtHistorico.setBackground(new Color(240,240,240));
+
+		lblIP = new JLabel("IP:");
+		lblIP.setBounds(10, 11, 46, 14);
+
+		txtIP = new JTextField();
+		txtIP.setText("127.0.0.1");
+		txtIP.setBounds(51, 8, 86, 20);
+		pnlContent.add(txtIP);
+		txtIP.setColumns(10);
+
+		lblPort = new JLabel("Porta:");
+		lblPort.setBounds(10, 41, 46, 14);
+		pnlContent.add(lblPort);
+		txtPort = new JTextField("8888");
+		txtPort.setBounds(51, 39, 86, 20);
+		pnlContent.add(txtPort);
+		txtPort.setColumns(10);
+
+		lblNome = new JLabel("Nome:");
+		lblNome.setBounds(10, 72, 46, 14);
+		pnlContent.add(lblNome);
+
+		txtName = new JTextField();
+		txtName.setBounds(51, 66, 86, 20);
+		txtName.setColumns(10);
+
+		btnConnect = new JButton("Connect");
+		btnConnect.setBounds(152, 7, 89, 79);
+		btnConnect.addActionListener(this);
+		pnlContent.add(btnConnect);
+
+		txtHistory = new JTextArea(20,20);
+		txtHistory.setEnabled(false);
+		txtHistory.setEditable(false);
+		txtHistory.setBackground(new Color(240,240,240));
+		txtHistory.setLineWrap(true); 
+		txtHistory.setBorder(BorderFactory.createEtchedBorder(Color.BLUE,Color.BLUE));
+
 		txtMsg = new JTextField(20);
-		txtMsg.setBounds(5, 412, 403, 46);
-		lblUsuarios = new JLabel("");
-		lblUsuarios.setBounds(12, 10, 396, 22);
-		btnSend = new JButton("Enviar");
-		btnSend.setBounds(415, 412, 102, 46);
-		btnSend.setToolTipText("");
-		btnSair = new JButton("Sair");
-		btnSair.setBounds(427, 374, 90, 25);
-		btnSair.setToolTipText("Sair do Chat");
-		btnSend.addActionListener(this);
-		btnSair.addActionListener(this);
-		btnSend.addKeyListener(this);
+		txtMsg.setEnabled(false);
+		txtMsg.setBounds(5, 514, 403, 46);
 		txtMsg.addKeyListener(this);
-		scroll = new JScrollPane(txtHistorico);
-		scroll.setBounds(5, 35, 403, 366);
-		txtHistorico.setLineWrap(true);  
+		txtMsg.setBorder(BorderFactory.createEtchedBorder(Color.BLUE, Color.BLUE)); 
+
+		lblUsuarios = new JLabel("");
+		lblUsuarios.setBounds(5, 97, 396, 22);
+
+		btnSend = new JButton("Enviar");
+		btnSend.setEnabled(false);
+		btnSend.setBounds(415, 514, 102, 46);
+		btnSend.addActionListener(this);
+		btnSend.addKeyListener(this);
+
+		btnExit = new JButton("Sair");
+		btnExit.setBounds(415, 478, 90, 25);
+		btnExit.setToolTipText("Sair do Chat");	
+		btnExit.addActionListener(this);
+
+		scroll = new JScrollPane(txtHistory);
+		scroll.setBounds(5, 130, 403, 366);
+
 		pnlContent.setLayout(null);
 		pnlContent.add(lblUsuarios);
 		pnlContent.add(scroll);
 		pnlContent.add(txtMsg);
-		pnlContent.add(btnSair);
+		pnlContent.add(btnExit);
 		pnlContent.add(btnSend);
-		pnlContent.setBackground(Color.LIGHT_GRAY);                                 
-		txtHistorico.setBorder(BorderFactory.createEtchedBorder(Color.BLUE,Color.BLUE));
-		txtMsg.setBorder(BorderFactory.createEtchedBorder(Color.BLUE, Color.BLUE));                    
-		setTitle(txtNome.getText());
-		setContentPane(pnlContent);
-		setLocationRelativeTo(null);
+		pnlContent.add(txtIP);
+		pnlContent.add(txtName);
+		pnlContent.add(lblIP);
+		pnlContent.setBackground(Color.LIGHT_GRAY);  
+
+		//setLocationRelativeTo(null);
 		setResizable(false);
-		setSize(550,500);
+		setSize(550,600);
 		setVisible(true);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		setDefaultCloseOperation(EXIT_ON_CLOSE);	
+		setTitle(txtName.getText());
+		setContentPane(pnlContent);
+
 	}
 
-	/***
-	 * Método usado para conectar no server socket, retorna IO Exception caso dê algum erro.
-	 * @throws IOException
-	 */
-	public void conectar() throws IOException{                       
-		socket = new Socket(txtIP.getText(),Integer.parseInt(txtPorta.getText()));
+	public void connect() throws IOException{      
+		socket = new Socket(txtIP.getText(),Integer.parseInt(txtPort.getText()));
 		ou = socket.getOutputStream();
 		ouw = new OutputStreamWriter(ou);
 		bfw = new BufferedWriter(ouw);
-		bfw.write(txtNome.getText()+"\r\n");
-		lblUsuarios.setText("(asdasd" );
+		bfw.write(txtName.getText()+"\r\n");
+		lblUsuarios.setText("(" + txtName.getText() + ") " );
 		bfw.flush();
+		btnSend.setEnabled(true);
+		txtMsg.setEnabled(true);
+		txtHistory.setEnabled(true);
+		btnConnect.setEnabled(false);
+
+		connected= true;
+
 	}
 
-	/***
-	 * Método usado para enviar mensagem para o server socket
-	 * @param msg do tipo String
-	 * @throws IOException retorna IO Exception caso dê algum erro.
-	 */
 	public void enviarMensagem(String msg) throws IOException{
 
 		if(msg.equals("Sair")){
 			bfw.write("Desconectado \r\n");
-			txtHistorico.append("Desconectado \r\n");
+			txtHistory.append(txtName.getText() + " desconectado \r\n");
 		}else{
-			bfw.write(msg+"\r\n");
-			txtHistorico.append( txtNome.getText() + ": " + txtMsg.getText()+"\r\n");
+			bfw.write(msg + "\r\n");
+			txtHistory.append( txtName.getText() + ": " + txtMsg.getText()+"\r\n");
 		}
 		bfw.flush();
-		txtMsg.setText("");        
+		txtMsg.setText("");  
+
 	}
 
-	/**
-	 * Método usado para receber mensagem do servidor
-	 * @throws IOException retorna IO Exception caso dê algum erro.
-	 */
-	public void escutar() throws IOException{
+	public static void escutar() throws IOException{
 
 		InputStream in = socket.getInputStream();
 		InputStreamReader inr = new InputStreamReader(in);
 		BufferedReader bfr = new BufferedReader(inr);
 		String msg = "";
-
+		System.out.println("esc");
 		while(!"Sair".equalsIgnoreCase(msg))
 
 			if(bfr.ready()){
 				msg = bfr.readLine();
-				if(msg.equals("Sair"))
-					txtHistorico.append("Servidor caiu! \r\n");
-				else
-					txtHistorico.append(msg+"\r\n");         
+				System.out.println("escutar" + msg);
+				if(msg.equals("Sair"))txtHistory.append("Servidor caiu! \r\n");
+				else txtHistory.append(msg + "\r\n");         
 			}
 	}
 
-	/***
-	 * Método usado quando o usuário clica em sair
-	 * @throws IOException retorna IO Exception caso dê algum erro.
-	 */
 	public void sair() throws IOException{
 
 		enviarMensagem("Sair");
@@ -145,54 +186,59 @@ public class Cliente extends JFrame implements ActionListener, KeyListener {
 		ouw.close();
 		ou.close();
 		socket.close();
+		btnConnect.setEnabled(true);
+		connected = false;
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
+	public void actionPerformed(ActionEvent ae) {
 
 		try {
-			if(e.getActionCommand().equals(btnSend.getActionCommand()))
-				enviarMensagem(txtMsg.getText());
-			else
-				if(e.getActionCommand().equals(btnSair.getActionCommand()))
-					sair();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			if(ae.getActionCommand().equals(btnSend.getActionCommand())) enviarMensagem(txtMsg.getText());
+			else if(ae.getActionCommand().equals((btnConnect.getActionCommand()))) connect();
+			else if(ae.getActionCommand().equals(btnExit.getActionCommand())) sair();
+		}catch (IOException e) {
+			e.printStackTrace();
 		}                       
 	}
 
 	@Override
-	public void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent ke) {
 
-		if(e.getKeyCode() == KeyEvent.VK_ENTER){
+		if(ke.getKeyCode() == KeyEvent.VK_ENTER){
 			try {
 				enviarMensagem(txtMsg.getText());
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}                                                          
 		}                       
 	}
 
 	@Override
 	public void keyReleased(KeyEvent arg0) {
-		
+
 	}
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
-		
+
 	}
 
 	public static void main(String []args) throws IOException{
-		Cliente app = new Cliente();
-		app.conectar();
-		app.escutar();
-	} 
+		new Cliente();
+
+		new Thread(() -> {
+			while(true){
+				try {
+					System.out.println(connected);
+					if(connected)escutar();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}).start();
+
+	}	
+
 }
-
-
-
-
-
-
-
