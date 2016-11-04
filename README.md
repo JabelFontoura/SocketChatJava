@@ -1,2 +1,2 @@
-# Trabalho Prog II
-Nomes: Felipe E Marcos
+# ScoketChatJava
+Author: Jabel Fontoura & Gabriel Falkembach
