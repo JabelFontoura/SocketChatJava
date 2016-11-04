@@ -80,7 +80,7 @@ public class Servidor extends Thread {
 			clientes = new ArrayList<BufferedWriter>();
 			JOptionPane.showMessageDialog(null,"Servidor ativo na porta: "+ txtPort.getText());
 			while(true){
-				System.out.println("Aguardando conex„o...");
+				System.out.println("Aguardando conex√£o...");
 				Socket con = server.accept();
 				System.out.println("Cliente conectado...");
 				Thread t = new Servidor(con); t.start();
@@ -91,54 +91,3 @@ public class Servidor extends Thread {
 	}
 
 } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
