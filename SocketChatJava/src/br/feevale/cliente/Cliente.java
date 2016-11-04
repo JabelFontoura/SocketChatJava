@@ -242,3 +242,10 @@ public class Cliente extends JFrame implements ActionListener, KeyListener {
 	}	
 
 }
+
+
+
+
+
+
+
