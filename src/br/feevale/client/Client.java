@@ -1,6 +1,5 @@
 package br.feevale.client;
 
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -10,13 +9,17 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
+import java.util.Calendar;
+import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import br.feevale.server.Server;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import br.feevale.view.ClientInterface;
 
 public class Client {
@@ -24,6 +27,8 @@ public class Client {
 	private OutputStream ou;
 	private Writer ouw; 
 	private BufferedWriter bfw;
+	private JSONObject obj;
+	private JSONObject file;
 	private static boolean connected = false;
 
 	public Client() throws IOException{                               
@@ -46,6 +51,36 @@ public class Client {
 		
 		connected = true;
 		
+	}
+	
+	public JSONObject buildMessage(String msg, String name) throws JSONException{
+		obj = new JSONObject();
+		file = new JSONObject();
+		file.put("Nome", "");
+		file.put("Tipo", "");
+		
+		obj.put( "Mensagem", msg );
+		obj.put( "Data-hora", Calendar.getInstance().getTime());		
+		obj.put( "Usuario", name);
+		obj.put( "Arquivo",  file);
+		
+		return obj;
+	}
+
+	public void sendMessage(JSONObject msg, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException, JSONException{
+		String message = msg.getString("Mensagem");
+		Object date = msg.get("Data-hora");
+		String user = msg.getString("Usuario");
+		
+		if(message.equals("Sair")){
+			bfw.write("Desconectado \r\n");
+			txtHistory.append(user + " desconectado \r\n");
+		}else if(!message.equalsIgnoreCase("")){
+			bfw.write(message + "\r\n");
+			txtHistory.append("Você: " + message + "                     [" + date + "]\r\n");
+		}
+		bfw.flush();
+		txtMsg.setText(""); 
 	}
 
 	public void sendMessage(String msg, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException{
@@ -96,7 +131,11 @@ public class Client {
 		new Thread(() -> {
 			while(true){
 				try {
-					System.out.println(connected);
+					try {
+						Thread.sleep(3);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					if(connected) listen();
 				} catch (IOException e) {
 

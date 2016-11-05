@@ -16,6 +16,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import br.feevale.client.Client;
+
 public class Server extends Thread {
 	private static ArrayList<BufferedWriter>clientes;
 	private static ServerSocket server;
@@ -24,6 +29,7 @@ public class Server extends Thread {
 	private InputStream in;
 	private InputStreamReader inr;
 	private BufferedReader bfr;
+	private Client cli;
 
 	public Server(Socket con){
 		this.con = con; 
@@ -39,6 +45,7 @@ public class Server extends Thread {
 	public void run(){
 		try{
 			String msg;
+			JSONObject msgJSON;
 			OutputStream ou = this.con.getOutputStream();
 			Writer ouw = new OutputStreamWriter(ou);
 			BufferedWriter bfw = new BufferedWriter(ouw);
@@ -47,21 +54,28 @@ public class Server extends Thread {
 			
 			while(!"Sair".equalsIgnoreCase(msg) && msg != null) {
 				msg = bfr.readLine();
-				sendToAll(bfw, msg);
+				cli = new Client();
+				msgJSON = cli.buildMessage(msg, name);
+				sendToAll(bfw, msgJSON);
 			} 
 		}catch (Exception e) {
 			e.printStackTrace(); 
 		}
 	}
 
-	public void sendToAll(BufferedWriter bwExit, String msg) throws  IOException {
+	public void sendToAll(BufferedWriter bwExit, JSONObject msg) throws  IOException, JSONException {
 		BufferedWriter bwS;
-
+		
+		String message = msg.getString("Mensagem");
+		Object date = msg.get("Data-hora");
+		String user = msg.getString("Usuario");
 		for(BufferedWriter bw : clientes){
 
 			bwS = (BufferedWriter)bw;
 			if(bwExit != bwS){
-				if(msg != null) bw.write(name + ": " + msg+"\r\n");
+				if(msg != null){
+					bw.write(name + ": " + message + "[" + date + "]\r\n");
+				}
 				bw.flush(); 
 			}
 		}          
