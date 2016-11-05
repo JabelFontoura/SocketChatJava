@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 public class Server extends Thread {
 	private static ArrayList<BufferedWriter>clientes;
 	private static ServerSocket server;
-	private  String name;
+	private String name;
 	private Socket con;
 	private InputStream in;
 	private InputStreamReader inr;
@@ -44,11 +44,10 @@ public class Server extends Thread {
 			BufferedWriter bfw = new BufferedWriter(ouw);
 			clientes.add(bfw);
 			name = msg = bfr.readLine();
-
+			
 			while(!"Sair".equalsIgnoreCase(msg) && msg != null) {
 				msg = bfr.readLine();
 				sendToAll(bfw, msg);
-				System.out.println(msg);
 			} 
 		}catch (Exception e) {
 			e.printStackTrace(); 
@@ -62,7 +61,7 @@ public class Server extends Thread {
 
 			bwS = (BufferedWriter)bw;
 			if(bwExit != bwS){
-				bw.write(name + ": " + msg+"\r\n");
+				if(msg != null) bw.write(name + ": " + msg+"\r\n");
 				bw.flush(); 
 			}
 		}          

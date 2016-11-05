@@ -32,7 +32,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 	private JScrollPane scroll;
 	private JLabel lblPort;
 	private JLabel lblIP;
-	private JLabel lblNome;
+	private JLabel lblName;
 	private JButton btnConnect;
 	private Client cli;
 
@@ -44,12 +44,14 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		
 		lblIP = new JLabel("IP:");
 		lblIP.setBounds(10, 11, 46, 14);
+		pnlContent.add(lblIP);
 	
 		txtIP = new JTextField();
 		txtIP.setText("127.0.0.1");
 		txtIP.setBounds(51, 8, 86, 20);
 		pnlContent.add(txtIP);
 		txtIP.setColumns(10);
+		txtIP.addKeyListener(this);
 		
 		lblPort = new JLabel("Porta:");
 		lblPort.setBounds(10, 41, 46, 14);
@@ -58,14 +60,18 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		txtPort.setBounds(51, 39, 86, 20);
 		pnlContent.add(txtPort);
 		txtPort.setColumns(10);
-		
-		lblNome = new JLabel("Nome:");
-		lblNome.setBounds(10, 72, 46, 14);
-		pnlContent.add(lblNome);
+		txtPort.addKeyListener(this);
 		
 		txtName = new JTextField();
 		txtName.setBounds(51, 66, 86, 20);
 		txtName.setColumns(10);
+		txtName.addKeyListener(this);
+		
+		lblName = new JLabel("Nome:");
+		lblName.setBounds(10, 72, 46, 14);
+		pnlContent.add(lblName);
+		pnlContent.add(txtName);
+		setTitle(txtName.getText());
 		
 		btnConnect = new JButton("Connect");
 		btnConnect.setBounds(152, 7, 89, 79);
@@ -109,8 +115,6 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		pnlContent.add(btnExit);
 		pnlContent.add(btnSend);
 		pnlContent.add(txtIP);
-		pnlContent.add(txtName);
-		pnlContent.add(lblIP);
 		pnlContent.setBackground(Color.LIGHT_GRAY);  
 		
 		requestFocus(false);
@@ -119,7 +123,6 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		setSize(550,600);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);	
-		setTitle(txtName.getText());
 		setContentPane(pnlContent);
 }
 
@@ -129,22 +132,30 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		try {
 			if(ae.getActionCommand().equals(btnSend.getActionCommand())) cli.sendMessage(txtMsg.getText(), txtHistory, txtName, txtMsg);
 			else if(ae.getActionCommand().equals((btnConnect.getActionCommand()))) cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect);
-			else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.exit(txtHistory, txtName, txtMsg, btnConnect);
+			else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.exit(txtHistory, txtName, txtMsg, btnConnect, btnSend);
 		}catch (IOException e) {
 			e.printStackTrace();
 		}                       
 	}
 
 	@Override
-	public void keyPressed(KeyEvent ke) {
+	public void keyPressed(KeyEvent ke){
 
-		if(ke.getKeyCode() == KeyEvent.VK_ENTER){
-			try {
-				cli.sendMessage(txtMsg.getText(), txtHistory, txtName, txtMsg);
-			} catch (IOException e) {
+		if((ke.getKeyCode() == KeyEvent.VK_ENTER) && (!cli.isConnected())){
+			try{
+				cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect);
+			}catch (NumberFormatException | IOException e) {
 				e.printStackTrace();
-			}                                                          
-		}                       
+			}
+		}else if(ke.getKeyCode() == KeyEvent.VK_ENTER && cli.isConnected()){
+			try{
+				cli.sendMessage(txtMsg.getText(), txtHistory, txtName, txtMsg);
+			}catch (IOException e) {
+				e.printStackTrace();
+			}  
+		}
+		tabToTextFields(ke, txtIP);
+		
 	}
 
 	@Override
@@ -156,6 +167,15 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 	public void keyTyped(KeyEvent arg0) {
 
 		
+	}
+	
+	public void tabToTextFields(KeyEvent ke, JTextField txt){
+		if (ke.getKeyCode() == KeyEvent.VK_TAB) {
+            if(ke.getModifiers() > 0) txt.transferFocusBackward();
+            else txt.transferFocus();
+            
+            ke.consume();
+        }
 	}
 	
 

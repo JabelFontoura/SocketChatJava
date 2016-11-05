@@ -1,5 +1,6 @@
 package br.feevale.client;
 
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import br.feevale.server.Server;
 import br.feevale.view.ClientInterface;
 
 public class Client {
@@ -34,15 +36,16 @@ public class Client {
 		ouw = new OutputStreamWriter(ou);
 		bfw = new BufferedWriter(ouw);
 		bfw.write(txtName.getText()+"\r\n");
-		lblUsers.setText("(" + txtName.getText() + ") " );
+		lblUsers.setText("");
 		bfw.flush();
+		txtMsg.requestFocus();
 		btnSend.setEnabled(true);
 		txtMsg.setEnabled(true);
 		txtHistory.setEnabled(true);
 		btnConnect.setEnabled(false);
-
-		connected= true;
-
+		
+		connected = true;
+		
 	}
 
 	public void sendMessage(String msg, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException{
@@ -50,7 +53,7 @@ public class Client {
 		if(msg.equals("Sair")){
 			bfw.write("Desconectado \r\n");
 			txtHistory.append(txtName.getText() + " desconectado \r\n");
-		}else{
+		}else if(!msg.equalsIgnoreCase("")){
 			bfw.write(msg + "\r\n");
 			txtHistory.append("Você: " + txtMsg.getText()+"\r\n");
 		}
@@ -65,8 +68,8 @@ public class Client {
 		InputStreamReader inr = new InputStreamReader(in);
 		BufferedReader bfr = new BufferedReader(inr);
 		String msg = "";
-		
-		while(!"Sair".equalsIgnoreCase(msg))
+		int i = 0;
+		while(!msg.equalsIgnoreCase("Sair"))
 			if(bfr.ready()){
 				msg = bfr.readLine();
 				if(msg.equals("Sair"))ClientInterface.getTxtHistory().append("Servidor caiu! \r\n");
@@ -74,7 +77,7 @@ public class Client {
 			}
 	}
 
-	public void exit(JTextArea txtHistory, JTextField txtName, JTextField txtMsg, JButton btnConnect) throws IOException{
+	public void exit(JTextArea txtHistory, JTextField txtName, JTextField txtMsg, JButton btnConnect, JButton btnSend) throws IOException{
 
 		sendMessage("Sair", txtHistory, txtName, txtMsg);
 		bfw.close();
@@ -82,6 +85,8 @@ public class Client {
 		ou.close();
 		socket.close();
 		btnConnect.setEnabled(true);
+		btnSend.setEnabled(false);
+		txtMsg.setEnabled(false);
 		connected = false;
 	}
 
@@ -100,6 +105,10 @@ public class Client {
 			}
 		}).start();
 
+	}
+	
+	public boolean isConnected(){
+		return connected;
 	}
 
 }
