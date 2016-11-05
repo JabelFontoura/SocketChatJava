@@ -1,4 +1,4 @@
-/*package br.feevale.view;
+package br.feevale.view;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -16,17 +16,16 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import br.feevale.cliente.Cliente;
+import br.feevale.client.Client;
 
 public class ClientInterface extends JFrame implements ActionListener, KeyListener{
 	private static final long serialVersionUID = 1L;
-	private JTextArea txtHistory;
+	private static JTextArea txtHistory;
 	private JTextField txtMsg;
 	private JButton btnSend;
 	private JButton btnExit;
-	private JLabel lblUsuarios;
+	private JLabel lblUsers;
 	private JPanel pnlContent;
-
 	private JTextField txtIP;
 	private JTextField txtPort;
 	private JTextField txtName;
@@ -35,12 +34,11 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 	private JLabel lblIP;
 	private JLabel lblNome;
 	private JButton btnConnect;
-	private boolean connected = false;
-	private Cliente cli;
+	private Client cli;
 
 	public ClientInterface() throws IOException{                               
              
-		cli = new Cliente();
+		cli = new Client();
 		
 		pnlContent = new JPanel();
 		
@@ -87,8 +85,8 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		txtMsg.addKeyListener(this);
 		txtMsg.setBorder(BorderFactory.createEtchedBorder(Color.BLUE, Color.BLUE)); 
 		
-		lblUsuarios = new JLabel("");
-		lblUsuarios.setBounds(5, 97, 396, 22);
+		lblUsers = new JLabel("");
+		lblUsers.setBounds(5, 97, 396, 22);
 		
 		btnSend = new JButton("Enviar");
 		btnSend.setEnabled(false);
@@ -105,7 +103,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		scroll.setBounds(5, 130, 403, 366);
  
 		pnlContent.setLayout(null);
-		pnlContent.add(lblUsuarios);
+		pnlContent.add(lblUsers);
 		pnlContent.add(scroll);
 		pnlContent.add(txtMsg);
 		pnlContent.add(btnExit);
@@ -115,7 +113,8 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		pnlContent.add(lblIP);
 		pnlContent.setBackground(Color.LIGHT_GRAY);  
 		
-		setLocationRelativeTo(null);
+		requestFocus(false);
+		//setLocationRelativeTo(null);
 		setResizable(false);
 		setSize(550,600);
 		setVisible(true);
@@ -124,92 +123,13 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		setContentPane(pnlContent);
 }
 
-	
-	public JButton getBtnConnect() {
-		return btnConnect;
-	}
-
-
-	public void setBtnConnect(JButton btnConnect) {
-		this.btnConnect = btnConnect;
-	}
-
-
-	public JButton getBtnSend() {
-		return btnSend;
-	}
-
-
-	public void setBtnSend(JButton btnSend) {
-		this.btnSend = btnSend;
-	}
-
-
-	public JLabel getLblUsuarios() {
-		return lblUsuarios;
-	}
-
-
-	public void setLblUsuarios(JLabel lblUsuarios) {
-		this.lblUsuarios = lblUsuarios;
-	}
-
-
-	public JTextArea getTxtHistory() {
-		return txtHistory;
-	}
-
-	public void setTxtHistory(JTextArea txtHistory) {
-		this.txtHistory = txtHistory;
-	}
-
-	public JTextField getTxtMsg() {
-		return txtMsg;
-	}
-
-	public void setTxtMsg(JTextField txtMsg) {
-		this.txtMsg = txtMsg;
-	}
-
-	public JTextField getTxtIP() {
-		return txtIP;
-	}
-
-	public void setTxtIP(JTextField txtIP) {
-		this.txtIP = txtIP;
-	}
-
-	public JTextField getTxtPort() {
-		return txtPort;
-	}
-
-	public void setTxtPort(JTextField txtPort) {
-		this.txtPort = txtPort;
-	}
-
-	public JTextField getTxtName() {
-		return txtName;
-	}
-
-	public void setTxtName(JTextField txtName) {
-		this.txtName = txtName;
-	}
-
-	public boolean isConnected() {
-		return connected;
-	}
-
-	public void setConnected(boolean connected) {
-		this.connected = connected;
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 
 		try {
-			if(ae.getActionCommand().equals(btnSend.getActionCommand())) cli.enviarMensagem(txtMsg.getText());
-			else if(ae.getActionCommand().equals((btnConnect.getActionCommand()))) cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()));
-			else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.sair();
+			if(ae.getActionCommand().equals(btnSend.getActionCommand())) cli.sendMessage(txtMsg.getText(), txtHistory, txtName, txtMsg);
+			else if(ae.getActionCommand().equals((btnConnect.getActionCommand()))) cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect);
+			else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.exit(txtHistory, txtName, txtMsg, btnConnect);
 		}catch (IOException e) {
 			e.printStackTrace();
 		}                       
@@ -220,7 +140,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 
 		if(ke.getKeyCode() == KeyEvent.VK_ENTER){
 			try {
-				cli.enviarMensagem(txtMsg.getText());
+				cli.sendMessage(txtMsg.getText(), txtHistory, txtName, txtMsg);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}                                                          
@@ -234,8 +154,17 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 
 	@Override
 	public void keyTyped(KeyEvent arg0) {
+
 		
 	}
 	
+
+	public static JTextArea getTxtHistory() {
+		return txtHistory;
+	}
+
+
+	
+	
+	
 }	
-*/

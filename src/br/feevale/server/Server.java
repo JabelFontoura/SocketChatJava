@@ -1,4 +1,4 @@
-package br.feevale.servidor;
+package br.feevale.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,7 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
-public class Servidor extends Thread {
+public class Server extends Thread {
 	private static ArrayList<BufferedWriter>clientes;
 	private static ServerSocket server;
 	private  String name;
@@ -25,7 +25,7 @@ public class Servidor extends Thread {
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 
-	public Servidor(Socket con){
+	public Server(Socket con){
 		this.con = con; 
 		try { 
 			in = con.getInputStream(); 
@@ -55,14 +55,13 @@ public class Servidor extends Thread {
 		}
 	}
 
-	public void sendToAll(BufferedWriter bwSaida, String msg) throws  IOException 
-	{
+	public void sendToAll(BufferedWriter bwExit, String msg) throws  IOException {
 		BufferedWriter bwS;
 
 		for(BufferedWriter bw : clientes){
 
 			bwS = (BufferedWriter)bw;
-			if(bwSaida != bwS){
+			if(bwExit != bwS){
 				bw.write(name + ": " + msg+"\r\n");
 				bw.flush(); 
 			}
@@ -71,7 +70,6 @@ public class Servidor extends Thread {
 
 	public static void main(String []args) {
 		try{
-
 			JLabel lblMessage = new JLabel("Porta do Servidor:");
 			JTextField txtPort = new JTextField("8888");
 			Object[] texts = {lblMessage, txtPort };
@@ -83,7 +81,7 @@ public class Servidor extends Thread {
 				System.out.println("Aguardando conexão...");
 				Socket con = server.accept();
 				System.out.println("Cliente conectado...");
-				Thread t = new Servidor(con); t.start();
+				Thread t = new Server(con); t.start();
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
