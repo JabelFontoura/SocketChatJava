@@ -162,9 +162,9 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 				if(!(txtName.getText().equals("") || txtIP.getText().equals("") || txtPort.getText().equals("")))
 					cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect, btnSendFile);
 				else JOptionPane.showMessageDialog(this, "Prencha os campos necessários para conectar");	
-				
 			}else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.exit(txtHistory, txtName, txtMsg, btnConnect, btnSend, btnSendFile);
-			else if(ae.getActionCommand().equals(btnSendFile.getActionCommand())) cli.sendFile(getClass().getResource( "/file.txt" ).toString().substring(5));
+			else if(ae.getActionCommand().equals(btnSendFile.getActionCommand())) 
+				cli.sendFile(getClass().getResource( "/file.txt" ).toString().substring(5), txtHistory, txtName, txtMsg);
 		}catch (IOException e) {
 			e.printStackTrace();
 		}                       

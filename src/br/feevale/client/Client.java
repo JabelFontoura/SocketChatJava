@@ -1,13 +1,14 @@
 package br.feevale.client;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -15,7 +16,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 
 import javax.swing.JButton;
@@ -26,9 +26,6 @@ import javax.swing.JTextField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-
-import br.feevale.server.Server;
 import br.feevale.view.ClientInterface;
 
 public class Client {
@@ -62,22 +59,22 @@ public class Client {
 		sendMessage("/Conectar", txtHistory, txtName, txtMsg);
 		connected = true;
 	}
-	
+
 	public JSONObject buildMessage(String msg, String name) throws JSONException{
-		
+
 		dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		
+
 		obj = new JSONObject();
 		file = new JSONObject();
 		file.put("Nome", "");
 		file.put("Conteudo", "");
 		file.put("Tipo", "");
-		
+
 		obj.put( "Mensagem", msg );
 		obj.put( "DataHora", dateFormat.format(Calendar.getInstance().getTime()).toString());		
 		obj.put( "Usuario", name);
 		obj.put( "Arquivo",  file);
-		
+
 		return obj;
 	}
 
@@ -85,7 +82,7 @@ public class Client {
 		String message = msg.getString("Mensagem");
 		Object date = msg.getString("DataHora");
 		String user = msg.getString("Usuario");
-		
+
 		if(message.equals("/Sair")){
 			bfw.write("Desconectado \r\n");
 			txtHistory.append(user + " desconectado \r\n");
@@ -107,16 +104,27 @@ public class Client {
 			txtHistory.append(txtName.getText() + ": conectou\r\n");			
 		}else if(!msg.equalsIgnoreCase("")){
 			bfw.write(msg + "\r\n");
-			txtHistory.append("Você: " + txtMsg.getText()+"\r\n");
+			txtHistory.append("Você: " + msg +"\r\n");
 		}
 		bfw.flush();
 		txtMsg.setText("");  
 
 	}
-	
 
-	public void sendFile(String fileName) throws UnknownHostException, IOException{
-	
+
+	public void sendFile(String fileName, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException{
+		File file = new File (fileName);
+		String msg = "";
+		byte [] bytearray  = new byte [(int)file.length()];
+
+		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
+		bin.read(bytearray,0,bytearray.length);
+		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+		msg = "Arquivo enviado --> " + file.getName() + " " + file.length() + " bytes.";
+		sendMessage(msg, txtHistory, txtName, txtMsg);
+		os.write(bytearray,0,bytearray.length);
+		os.flush();
+
 	}
 
 	public static void listen() throws IOException{
@@ -167,7 +175,7 @@ public class Client {
 		}).start();
 
 	}
-	
+
 	public boolean isConnected(){
 		return connected;
 	}

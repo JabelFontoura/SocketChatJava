@@ -2,12 +2,10 @@ package br.feevale.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -55,28 +53,30 @@ public class Server extends Thread {
 			BufferedWriter bfw = new BufferedWriter(ouw);
 			clientes.add(bfw);
 			name = msg = bfr.readLine();
-			
-			while(!"Sair".equalsIgnoreCase(msg) && msg != null) {
+
+			while(!"/Sair".equalsIgnoreCase(msg) && msg != null) {
 				msg = bfr.readLine();
 				cli = new Client();
 				msgJSON = cli.buildMessage(msg, name);
 				sendToAll(bfw, msgJSON);
+				//reciveFile(msg, bfw);
 			} 
 		}catch (Exception e) {
 			e.printStackTrace(); 
 		}
 	}
 
-	public void sendToAll(BufferedWriter bwExit, JSONObject msg) throws  IOException, JSONException {
+	public void sendToAll(BufferedWriter bfw, JSONObject msg) throws  IOException, JSONException {
 		BufferedWriter bwS;
-		
+
 		String message = msg.getString("Mensagem");
 		Object date = msg.getString("DataHora");
 		//String user = msg.getString("Usuario");
+
 		for(BufferedWriter bw : clientes){
 
 			bwS = (BufferedWriter)bw;
-			if(bwExit != bwS){
+			if(bfw != bwS){
 				if(msg != null){
 					bw.write(name + ": " + message + " -- [ " + date + " ]\r\n");
 				}
@@ -84,7 +84,20 @@ public class Server extends Thread {
 			}
 		}          
 	}
- 
+
+	public void reciveFile(String msg, BufferedWriter bfw) throws IOException, JSONException{
+		String[] data;
+
+			data = msg.split("`");
+			DataInputStream in = new DataInputStream(server.accept().getInputStream());
+			byte[] bytes = new byte[Integer.parseInt(data[1])];
+			in.read(bytes);
+			
+			sendToAll(bfw, cli.buildMessage(msg, name));
+		
+
+	}
+
 	public static void main(String []args) {
 		try{
 			JLabel lblMessage = new JLabel("Porta do Servidor:");
