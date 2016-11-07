@@ -78,7 +78,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		pnlContent.add(txtName);
 		setTitle(txtName.getText());
 
-		btnConnect = new JButton("Connect");
+		btnConnect = new JButton("Conectar");
 		btnConnect.setBounds(152, 7, 89, 79);
 		btnConnect.addActionListener(this);
 		pnlContent.add(btnConnect);

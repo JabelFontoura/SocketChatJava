@@ -67,14 +67,14 @@ public class Server extends Thread {
 		BufferedWriter bwS;
 		
 		String message = msg.getString("Mensagem");
-		Object date = msg.get("Data-hora");
-		String user = msg.getString("Usuario");
+		Object date = msg.getString("DataHora");
+		//String user = msg.getString("Usuario");
 		for(BufferedWriter bw : clientes){
 
 			bwS = (BufferedWriter)bw;
 			if(bwExit != bwS){
 				if(msg != null){
-					bw.write(name + ": " + message + "[" + date + "]\r\n");
+					bw.write(name + ": " + message + " -- [ " + date + " ]\r\n");
 				}
 				bw.flush(); 
 			}

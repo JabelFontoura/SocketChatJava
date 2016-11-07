@@ -9,8 +9,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -29,6 +30,7 @@ public class Client {
 	private BufferedWriter bfw;
 	private JSONObject obj;
 	private JSONObject file;
+	private DateFormat dateFormat;
 	private static boolean connected = false;
 
 	public Client() throws IOException{                               
@@ -50,17 +52,20 @@ public class Client {
 		btnConnect.setEnabled(false);
 		
 		connected = true;
-		
 	}
 	
 	public JSONObject buildMessage(String msg, String name) throws JSONException{
+		
+		dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		
 		obj = new JSONObject();
 		file = new JSONObject();
 		file.put("Nome", "");
+		file.put("Conteudo", "");
 		file.put("Tipo", "");
 		
 		obj.put( "Mensagem", msg );
-		obj.put( "Data-hora", Calendar.getInstance().getTime());		
+		obj.put( "DataHora", dateFormat.format(Calendar.getInstance().getTime()).toString());		
 		obj.put( "Usuario", name);
 		obj.put( "Arquivo",  file);
 		
@@ -69,7 +74,7 @@ public class Client {
 
 	public void sendMessage(JSONObject msg, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException, JSONException{
 		String message = msg.getString("Mensagem");
-		Object date = msg.get("Data-hora");
+		Object date = msg.getString("DataHora");
 		String user = msg.getString("Usuario");
 		
 		if(message.equals("Sair")){
@@ -77,7 +82,7 @@ public class Client {
 			txtHistory.append(user + " desconectado \r\n");
 		}else if(!message.equalsIgnoreCase("")){
 			bfw.write(message + "\r\n");
-			txtHistory.append("Você: " + message + "                     [" + date + "]\r\n");
+			txtHistory.append("Você: " + message + " -- [ " + date + " ]\r\n");
 		}
 		bfw.flush();
 		txtMsg.setText(""); 
@@ -138,7 +143,6 @@ public class Client {
 					}
 					if(connected) listen();
 				} catch (IOException e) {
-
 					e.printStackTrace();
 				}
 			}
