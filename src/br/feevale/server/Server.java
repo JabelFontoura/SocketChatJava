@@ -57,7 +57,7 @@ public class Server extends Thread {
 			while(!"/Sair".equalsIgnoreCase(msg) && msg != null) {
 				msg = bfr.readLine();
 				cli = new Client();
-				msgJSON = cli.buildMessage(msg, name);
+				msgJSON = cli.buildMessage(msg, name, null, null, null);
 				sendToAll(bfw, msgJSON);
 				//reciveFile(msg, bfw);
 			} 
@@ -68,6 +68,16 @@ public class Server extends Thread {
 
 	public void sendToAll(BufferedWriter bfw, JSONObject msg) throws  IOException, JSONException {
 		BufferedWriter bwS;
+		JSONObject file;
+		String fileName = "", content = "", type = "";
+		
+		if(!msg.isNull("Arquivo")){
+			file = msg.getJSONObject("Arquivo");
+			fileName = file.getString("Nome");
+			content = file.getString("Conteudo");
+			type = file.getString("Tipo");
+		}
+		
 
 		String message = msg.getString("Mensagem");
 		Object date = msg.getString("DataHora");
@@ -78,6 +88,7 @@ public class Server extends Thread {
 			bwS = (BufferedWriter)bw;
 			if(bfw != bwS){
 				if(msg != null){
+					if(!msg.isNull("Arquivo")) bw.write("Arquivo enviado --> " + fileName + " " + content + "bytes." );
 					bw.write(name + ": " + message + " -- [ " + date + " ]\r\n");
 				}
 				bw.flush(); 
@@ -93,7 +104,7 @@ public class Server extends Thread {
 			byte[] bytes = new byte[Integer.parseInt(data[1])];
 			in.read(bytes);
 			
-			sendToAll(bfw, cli.buildMessage(msg, name));
+			//sendToAll(bfw, cli.buildMessage(msg, name));
 		
 
 	}

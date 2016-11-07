@@ -60,19 +60,19 @@ public class Client {
 		connected = true;
 	}
 
-	public JSONObject buildMessage(String msg, String name) throws JSONException{
+	public JSONObject buildMessage(String msg, String user, String fileName, String content, String type) throws JSONException{
 
 		dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
+		
 		obj = new JSONObject();
 		file = new JSONObject();
-		file.put("Nome", "");
-		file.put("Conteudo", "");
-		file.put("Tipo", "");
+		file.put("Nome", fileName);
+		file.put("Conteudo", content);
+		file.put("Tipo", type);
 
 		obj.put( "Mensagem", msg );
 		obj.put( "DataHora", dateFormat.format(Calendar.getInstance().getTime()).toString());		
-		obj.put( "Usuario", name);
+		obj.put( "Usuario", user);
 		obj.put( "Arquivo",  file);
 
 		return obj;
@@ -114,14 +114,18 @@ public class Client {
 
 	public void sendFile(String fileName, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException{
 		File file = new File (fileName);
-		String msg = "";
+
 		byte [] bytearray  = new byte [(int)file.length()];
 
 		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
 		bin.read(bytearray,0,bytearray.length);
 		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
-		msg = "Arquivo enviado --> " + file.getName() + " " + file.length() + " bytes.";
-		sendMessage(msg, txtHistory, txtName, txtMsg);
+		
+		try {
+			sendMessage(buildMessage("Arquivo enviado --> ", txtName.getText(), file.getName(), file.length() + "", "" ), txtHistory, txtName, txtMsg);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
 		os.write(bytearray,0,bytearray.length);
 		os.flush();
 
