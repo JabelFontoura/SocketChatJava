@@ -2,15 +2,20 @@ package br.feevale.client;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import javax.swing.JButton;
@@ -21,6 +26,9 @@ import javax.swing.JTextField;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+
+import br.feevale.server.Server;
 import br.feevale.view.ClientInterface;
 
 public class Client {
@@ -37,7 +45,7 @@ public class Client {
 
 	}
 
-	public void connect(String ip, int port, JTextField txtName, JLabel lblUsers, JButton btnSend, JTextField txtMsg, JTextArea txtHistory, JButton btnConnect) throws IOException{      
+	public void connect(String ip, int port, JTextField txtName, JLabel lblUsers, JButton btnSend, JTextField txtMsg, JTextArea txtHistory, JButton btnConnect, JButton btnSendFile) throws IOException{      
 		socket = new Socket(ip,port);
 		ou = socket.getOutputStream();
 		ouw = new OutputStreamWriter(ou);
@@ -49,8 +57,9 @@ public class Client {
 		btnSend.setEnabled(true);
 		txtMsg.setEnabled(true);
 		txtHistory.setEnabled(true);
+		btnSendFile.setEnabled(true);
 		btnConnect.setEnabled(false);
-		
+		sendMessage("/Conectar", txtHistory, txtName, txtMsg);
 		connected = true;
 	}
 	
@@ -77,7 +86,7 @@ public class Client {
 		Object date = msg.getString("DataHora");
 		String user = msg.getString("Usuario");
 		
-		if(message.equals("Sair")){
+		if(message.equals("/Sair")){
 			bfw.write("Desconectado \r\n");
 			txtHistory.append(user + " desconectado \r\n");
 		}else if(!message.equalsIgnoreCase("")){
@@ -90,9 +99,12 @@ public class Client {
 
 	public void sendMessage(String msg, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException{
 
-		if(msg.equals("Sair")){
+		if(msg.equals("/Sair")){
 			bfw.write("Desconectado \r\n");
 			txtHistory.append(txtName.getText() + " desconectado \r\n");
+		}else if(msg.equalsIgnoreCase("/Conectar")){
+			bfw.write("Conectou \r\n");
+			txtHistory.append(txtName.getText() + ": conectou\r\n");			
 		}else if(!msg.equalsIgnoreCase("")){
 			bfw.write(msg + "\r\n");
 			txtHistory.append("Você: " + txtMsg.getText()+"\r\n");
@@ -100,6 +112,11 @@ public class Client {
 		bfw.flush();
 		txtMsg.setText("");  
 
+	}
+	
+
+	public void sendFile(String fileName) throws UnknownHostException, IOException{
+	
 	}
 
 	public static void listen() throws IOException{
@@ -109,17 +126,17 @@ public class Client {
 		BufferedReader bfr = new BufferedReader(inr);
 		String msg = "";
 		int i = 0;
-		while(!msg.equalsIgnoreCase("Sair"))
+		while(!msg.equalsIgnoreCase("/Sair"))
 			if(bfr.ready()){
 				msg = bfr.readLine();
-				if(msg.equals("Sair"))ClientInterface.getTxtHistory().append("Servidor caiu! \r\n");
+				if(msg.equals("/Sair"))ClientInterface.getTxtHistory().append("Servidor caiu! \r\n");
 				else ClientInterface.getTxtHistory().append(msg + "\r\n");         
 			}
 	}
 
-	public void exit(JTextArea txtHistory, JTextField txtName, JTextField txtMsg, JButton btnConnect, JButton btnSend) throws IOException{
+	public void exit(JTextArea txtHistory, JTextField txtName, JTextField txtMsg, JButton btnConnect, JButton btnSend, JButton btnSendFile) throws IOException{
 
-		sendMessage("Sair", txtHistory, txtName, txtMsg);
+		sendMessage("/Sair", txtHistory, txtName, txtMsg);
 		bfw.close();
 		ouw.close();
 		ou.close();
@@ -127,6 +144,7 @@ public class Client {
 		btnConnect.setEnabled(true);
 		btnSend.setEnabled(false);
 		txtMsg.setEnabled(false);
+		btnSendFile.setEnabled(false);
 		connected = false;
 	}
 

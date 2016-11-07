@@ -2,9 +2,12 @@ package br.feevale.server;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -30,6 +33,7 @@ public class Server extends Thread {
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 	private Client cli;
+	public static final int BUFFER_SIZE = 100;
 
 	public Server(Socket con){
 		this.con = con; 
@@ -80,7 +84,7 @@ public class Server extends Thread {
 			}
 		}          
 	}
-
+ 
 	public static void main(String []args) {
 		try{
 			JLabel lblMessage = new JLabel("Porta do Servidor:");
