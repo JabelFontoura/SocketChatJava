@@ -29,6 +29,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 	private JTextField txtMsg;
 	private JButton btnSend;
 	private JButton btnExit;
+	private JButton btnSendFile;
 	private JLabel lblUsers;
 	private JPanel pnlContent;
 	private JTextField txtIP;
@@ -109,6 +110,11 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		btnExit.setBounds(415, 478, 90, 25);
 		btnExit.setToolTipText("Sair do Chat");	
 		btnExit.addActionListener(this);
+		
+		btnSendFile = new JButton("Enviar arquivo");
+		btnSendFile.setBounds(251, 8, 125, 78);
+		btnSendFile.setEnabled(false);
+		btnSendFile.addActionListener(this);
 
 		scroll = new JScrollPane(txtHistory);
 		scroll.setBounds(5, 130, 403, 366);
@@ -120,6 +126,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		pnlContent.add(btnExit);
 		pnlContent.add(btnSend);
 		pnlContent.add(txtIP);
+		pnlContent.add(btnSendFile);
 		pnlContent.setBackground(Color.LIGHT_GRAY);  
 
 		requestFocus(false);
@@ -130,21 +137,16 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		setDefaultCloseOperation(EXIT_ON_CLOSE);	
 		setContentPane(pnlContent);
 		
-//		addWindowListener(new WindowAdapter(){
-//            public void windowClosing(WindowEvent e){
-//                int i=JOptionPane.showConfirmDialog(null, "Tem certeza que quer sair?");
-//                if(i == 0){
-//                	try {
-//						cli.exit(txtHistory, txtName, txtMsg, btnConnect, btnSend);
-//					} catch (IOException e1) {
-//						e1.printStackTrace();
-//					}
-//                    System.exit(0);
-//                }    
-//            }
-//        });
+		addWindowListener(new WindowAdapter() {
+		    public void windowClosing(WindowEvent e) {
+		        try {
+		        	if(cli.isConnected()) cli.exit(txtHistory, txtName, txtMsg, btnConnect, btnSend, btnSendFile);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+		    }
+		});
 	}
-
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
@@ -156,14 +158,13 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 				}catch (IOException | JSONException e) {
 					e.printStackTrace();
 				}
-			}
-			else if(ae.getActionCommand().equals((btnConnect.getActionCommand()))){
+			}else if(ae.getActionCommand().equals((btnConnect.getActionCommand()))){
 				if(!(txtName.getText().equals("") || txtIP.getText().equals("") || txtPort.getText().equals("")))
-					cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect);
+					cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect, btnSendFile);
 				else JOptionPane.showMessageDialog(this, "Prencha os campos necessários para conectar");	
 				
-			}
-			else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.exit(txtHistory, txtName, txtMsg, btnConnect, btnSend);
+			}else if(ae.getActionCommand().equals(btnExit.getActionCommand())) cli.exit(txtHistory, txtName, txtMsg, btnConnect, btnSend, btnSendFile);
+			else if(ae.getActionCommand().equals(btnSendFile.getActionCommand())) cli.sendFile(getClass().getResource( "/file.txt" ).toString().substring(5));
 		}catch (IOException e) {
 			e.printStackTrace();
 		}                       
@@ -174,7 +175,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 
 		if((ke.getKeyCode() == KeyEvent.VK_ENTER) && (!cli.isConnected())){
 			try{
-				cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect);
+				cli.connect(txtIP.getText(), Integer.parseInt(txtPort.getText()), txtName, lblUsers, btnSend, txtMsg, txtHistory, btnConnect, btnSendFile);
 			}catch (NumberFormatException | IOException e) {
 				e.printStackTrace();
 			}
@@ -211,13 +212,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 		}
 	}
 
-
 	public static JTextArea getTxtHistory() {
 		return txtHistory;
 	}
-
-
-
-
-
 }	
