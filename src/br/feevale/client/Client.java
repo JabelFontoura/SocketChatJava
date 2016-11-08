@@ -102,7 +102,11 @@ public class Client {
 			txtHistory.append(user + " desconectado \r\n");
 		}else if(message.contains("Arquivo enviado -->")){
 			bfw.write("Arquivo enviado --> " + fileName + " (" + content + " bytes.)\r\n");
+<<<<<<< HEAD
 			txtHistory.append("Você: Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
+=======
+			txtHistory.append("VocÃª: Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
+>>>>>>> 95277eac471b374b95099f2d67dd8b441f1872d7
 		}else if(!message.equalsIgnoreCase("")){
 			bfw.write(message + "\r\n");
 			txtHistory.append("Você: " + message + " -- [ " + date + " ]\r\n");
