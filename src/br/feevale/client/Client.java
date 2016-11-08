@@ -1,3 +1,6 @@
+/* 
+ Author: Jabel Fontoura
+*/
 package br.feevale.client;
 
 import java.io.BufferedInputStream;
@@ -99,10 +102,10 @@ public class Client {
 			txtHistory.append(user + " desconectado \r\n");
 		}else if(message.contains("Arquivo enviado -->")){
 			bfw.write("Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
-			txtHistory.append("Você: Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
+			txtHistory.append("VocÃª: Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
 		}else if(!message.equalsIgnoreCase("")){
 			bfw.write(message + "\r\n");
-			txtHistory.append("Você: " + message + " -- [ " + date + " ]\r\n");
+			txtHistory.append("VocÃª: " + message + " -- [ " + date + " ]\r\n");
 		}
 		bfw.flush();
 		txtMsg.setText(""); 
@@ -118,7 +121,7 @@ public class Client {
 			txtHistory.append(txtName.getText() + ": conectou\r\n");			
 		}else if(!msg.equalsIgnoreCase("")){
 			bfw.write(msg + "\r\n");
-			txtHistory.append("Você: " + msg +"\r\n");
+			txtHistory.append("VocÃª: " + msg +"\r\n");
 		}
 		bfw.flush();
 		txtMsg.setText("");  
