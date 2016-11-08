@@ -101,7 +101,7 @@ public class Client {
 			bfw.write("Desconectado \r\n");
 			txtHistory.append(user + " desconectado \r\n");
 		}else if(message.contains("Arquivo enviado -->")){
-			bfw.write("Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
+			bfw.write("Arquivo enviado --> " + fileName + " (" + content + " bytes.)\r\n");
 			txtHistory.append("Você: Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
 		}else if(!message.equalsIgnoreCase("")){
 			bfw.write(message + "\r\n");
