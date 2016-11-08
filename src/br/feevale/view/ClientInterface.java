@@ -200,7 +200,7 @@ public class ClientInterface extends JFrame implements ActionListener, KeyListen
 	}
 
 	public void sendMessage() throws IOException, JSONException{
-		cli.sendMessage(cli.buildMessage(txtMsg.getText(), txtName.getText(), "", null, null), txtHistory, txtName, txtMsg);
+		cli.sendMessage(cli.buildMessage(txtMsg.getText(), txtName.getText(), null, null), txtHistory, txtName, txtMsg);
 	}
 
 	public void tabToTextFields(KeyEvent ke, JTextField txt){

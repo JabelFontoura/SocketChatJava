@@ -31,7 +31,6 @@ public class Server extends Thread {
 	private InputStreamReader inr;
 	private BufferedReader bfr;
 	private Client cli;
-	public static final int BUFFER_SIZE = 100;
 
 	public Server(Socket con){
 		this.con = con; 
@@ -55,11 +54,11 @@ public class Server extends Thread {
 			name = msg = bfr.readLine();
 
 			while(!"/Sair".equalsIgnoreCase(msg) && msg != null) {
-				msg = bfr.readLine();
-				cli = new Client();
-				msgJSON = cli.buildMessage(msg, name, null, null, null);
-				sendToAll(bfw, msgJSON);
-				//reciveFile(msg, bfw);
+			msg = bfr.readLine();
+			cli = new Client();
+			msgJSON = cli.buildMessage(msg, name, null, null);
+			sendToAll(bfw, msgJSON);
+			//reciveFile(msg, bfw);
 			} 
 		}catch (Exception e) {
 			e.printStackTrace(); 
@@ -69,26 +68,28 @@ public class Server extends Thread {
 	public void sendToAll(BufferedWriter bfw, JSONObject msg) throws  IOException, JSONException {
 		BufferedWriter bwS;
 		JSONObject file;
-		String fileName = "", content = "", type = "";
-		
-		if(!msg.isNull("Arquivo")){
-			file = msg.getJSONObject("Arquivo");
+		String fileName = "", content = "", type = "" , message = "", date = "";
+
+		file = msg.getJSONObject("Arquivo");
+		if(file.length() != 0){		
 			fileName = file.getString("Nome");
 			content = file.getString("Conteudo");
 			type = file.getString("Tipo");
 		}
-		
 
-		String message = msg.getString("Mensagem");
-		Object date = msg.getString("DataHora");
-		//String user = msg.getString("Usuario");
-
+		if(msg.length() != 0){
+			message = msg.getString("Mensagem");
+			date = msg.getString("DataHora");
+			//String user = msg.getString("Usuario");
+		}
 		for(BufferedWriter bw : clientes){
 
 			bwS = (BufferedWriter)bw;
 			if(bfw != bwS){
 				if(msg != null){
-					if(!msg.isNull("Arquivo")) bw.write("Arquivo enviado --> " + fileName + " " + content + "bytes." );
+
+					//bw.write(name + ":  Arquivo enviado --> " + fileName  + " bytes.  -- [ " + date + " ]\r\n" );
+
 					bw.write(name + ": " + message + " -- [ " + date + " ]\r\n");
 				}
 				bw.flush(); 
@@ -99,13 +100,11 @@ public class Server extends Thread {
 	public void reciveFile(String msg, BufferedWriter bfw) throws IOException, JSONException{
 		String[] data;
 
-			data = msg.split("`");
-			DataInputStream in = new DataInputStream(server.accept().getInputStream());
-			byte[] bytes = new byte[Integer.parseInt(data[1])];
-			in.read(bytes);
-			
-			//sendToAll(bfw, cli.buildMessage(msg, name));
-		
+		DataInputStream in = new DataInputStream(server.accept().getInputStream());
+
+
+		//sendToAll(bfw, msg);
+
 
 	}
 

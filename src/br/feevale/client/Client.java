@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -60,7 +59,7 @@ public class Client {
 		connected = true;
 	}
 
-	public JSONObject buildMessage(String msg, String user, String fileName, String content, String type) throws JSONException{
+	public JSONObject buildMessage(String msg, String user, String fileName, String content) throws JSONException{
 
 		dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		
@@ -68,8 +67,8 @@ public class Client {
 		file = new JSONObject();
 		file.put("Nome", fileName);
 		file.put("Conteudo", content);
-		file.put("Tipo", type);
-
+		if(fileName != null) file.put("Tipo", fileName.substring(fileName.length() - 3, fileName.length()));
+			
 		obj.put( "Mensagem", msg );
 		obj.put( "DataHora", dateFormat.format(Calendar.getInstance().getTime()).toString());		
 		obj.put( "Usuario", user);
@@ -79,13 +78,28 @@ public class Client {
 	}
 
 	public void sendMessage(JSONObject msg, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException, JSONException{
-		String message = msg.getString("Mensagem");
-		Object date = msg.getString("DataHora");
-		String user = msg.getString("Usuario");
+		JSONObject file;
+		String fileName = "", content = "", type = "" , message = "", date = "", user = "";
+		
+		file = msg.getJSONObject("Arquivo");
+		if(file.length() != 0){	
+			fileName = file.getString("Nome");
+			content = file.getString("Conteudo");
+			type = file.getString("Tipo");
+		}
+
+		if(msg.length() != 0){
+			message = msg.getString("Mensagem");
+			date = msg.getString("DataHora");
+			user = msg.getString("Usuario");
+		}
 
 		if(message.equals("/Sair")){
 			bfw.write("Desconectado \r\n");
 			txtHistory.append(user + " desconectado \r\n");
+		}else if(message.contains("Arquivo enviado -->")){
+			bfw.write("Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
+			txtHistory.append("Você: Arquivo enviado --> " + fileName + " (" + content + " bytes.) -- [ " + date + " ]\r\n");
 		}else if(!message.equalsIgnoreCase("")){
 			bfw.write(message + "\r\n");
 			txtHistory.append("Você: " + message + " -- [ " + date + " ]\r\n");
@@ -115,19 +129,19 @@ public class Client {
 	public void sendFile(String fileName, JTextArea txtHistory, JTextField txtName, JTextField txtMsg) throws IOException{
 		File file = new File (fileName);
 
-		byte [] bytearray  = new byte [(int)file.length()];
+		byte[] bytearray  = new byte [(int)file.length()];
 
 		BufferedInputStream bin = new BufferedInputStream(new FileInputStream(file));
 		bin.read(bytearray,0,bytearray.length);
 		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 		
 		try {
-			sendMessage(buildMessage("Arquivo enviado --> ", txtName.getText(), file.getName(), file.length() + "", "" ), txtHistory, txtName, txtMsg);
+			sendMessage(buildMessage("Arquivo enviado --> ", txtName.getText(), file.getName(), file.length() + ""), txtHistory, txtName, txtMsg);
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		os.write(bytearray,0,bytearray.length);
-		os.flush();
+		//os.write(bytearray,0,bytearray.length);
+		//os.flush();
 
 	}
 

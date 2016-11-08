@@ -1,3 +1,1 @@
-asdasdasd
-
-http://stackoverflow.com/questions/14103418/java-send-a-file-over-socketchat-client-server-another-chat-client
+**Conteudo do arquivo**
